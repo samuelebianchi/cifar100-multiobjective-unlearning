@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import random
 from pathlib import Path
 
@@ -16,7 +17,7 @@ def set_logger():
 
 def set_seed(seed):
     """for reproducibility
-    :param seed:
+    :param seed: seed of all the random number generators
     :return:
     """
     np.random.seed(seed)
@@ -30,6 +31,22 @@ def set_seed(seed):
     torch.backends.cudnn.enabled = True
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
+
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+    torch.use_deterministic_algorithms(True, warn_only=True)
+
+
+def seed_worker(worker_id):
+    """``worker_init_fn`` of a DataLoader: seeds numpy and random in every worker.
+
+    Use it together with a seeded ``torch.Generator`` passed to the DataLoader, as in the
+    PyTorch reproducibility notes.
+    :param worker_id: index of the worker (unused, the seed is derived from torch)
+    :return:
+    """
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
 
 
 def count_parameters(model):

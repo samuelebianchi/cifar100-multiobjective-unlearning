@@ -1,0 +1,7 @@
+# Ruff configuration for this repository.
+# Tells the import sorter that `experiments` and `phn` are first-party packages,
+# whichever folder VS Code has open as workspace root.
+src = ["."]
+
+[lint.isort]
+known-first-party = ["experiments", "phn"]
